@@ -5,12 +5,14 @@ require 'geared_pagination/portions'
 
 module GearedPagination
   class Recordset
-    attr_reader :records, :orders, :ratios
+    attr_reader :records, :orders, :ratios, :estimated_count
 
-    def initialize(records, ordered_by: nil, per_page: nil)
+    def initialize(records, ordered_by: nil, per_page: nil, estimated_count: nil)
       @records = records
       @orders  = Order.wrap_many(ordered_by)
       @ratios  = Ratios.new(per_page)
+
+      @estimated_count = estimated_count
     end
 
     def page(param)
@@ -32,7 +34,7 @@ module GearedPagination
     end
 
     def records_count
-      @records_count ||= records.unscope(:limit).unscope(:offset).count
+      @records_count ||= estimated_count || records.unscope(:limit).unscope(:offset).count
     end
 
     private
